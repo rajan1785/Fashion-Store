@@ -348,6 +348,7 @@
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Cart data:', cart);
             fetch('actions/fetch_products.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -355,7 +356,7 @@
             })
             .then(res => res.json())
             .then(result => {
-                console.log(result);
+                console.log('Products fetched:', result);
                 loadCartItems(result);
                 // handleProducts(result);
             })
@@ -363,41 +364,140 @@
         });
         
         function loadCartItems(data){
+            console.log('Loading cart items with data:', data);
             const cartSection = document.querySelector('#cartItems');
-            let items = [];
-            data.forEach(product => {
-                items.push(`
+            
+            // Handle empty cart case
+            if (!data || data.length === 0) {
+                console.log('No products to display');
+                cartSection.innerHTML = `
                     <div class="cart-item">
                         <div class="item-details">
-                            <div class="item-name">${product.name}</div>
-                            <div class="item-price" data-price="${product.price}">₹${product.price} each</div>
+                            <div class="item-name">No items in cart</div>
+                            <div class="item-price">₹0.00 each</div>
                             <div class="item-quantity">
                                 <button class="qty-btn">-</button>
-                                <span class="qty-display">1</span>
+                                <span class="qty-display">0</span>
                                 <button class="qty-btn">+</button>
                             </div>
                         </div>
                         <button class="remove-btn">Remove</button>
                     </div>
+                `;
+                calculateCart();
+                return;
+            }
+            
+            let items = [];
+            data.forEach(product => {
+                const cartItem = cart.find(item => item.id === product.id);
+                const quantity = cartItem ? cartItem.quantity : 1;
+                console.log(`Product ${product.id}: cart quantity = ${quantity}`);
+
+                items.push(`
+                    <div class="cart-item" data-product-id="${product.id}">
+                        <div class="item-details">
+                            <div class="item-name">${product.name}</div>
+                            <div class="item-price" data-price="${product.price}" data-available="${product.avl_unit}">₹${product.price} each</div>
+                            <div class="item-quantity">
+                                <button class="qty-btn" onclick="updateQuantity(this, -1)">-</button>
+                                <span class="qty-display">${quantity}</span>
+                                <button class="qty-btn" onclick="updateQuantity(this, 1)">+</button>
+                            </div>
+                        </div>
+                        <button class="remove-btn" onclick="removeItem(this)">Remove</button>
+                    </div>
                 `);
 
             });
+            console.log('Generated items:', items);
             cartSection.innerHTML = items.join('');
             calculateCart();
+        }
+
+        function updateCart() {
+            // Save the updated cart to local storage
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            // Fetch the product details again to reload the cart
+            fetch('actions/fetch_products.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cart: cart })
+            })
+            .then(res => res.json())
+            .then(result => {
+                loadCartItems(result);
+            })
+            .catch(err => console.error('Save error:', err));
         }
 
         function calculateCart(){
             const cartItems = document.querySelectorAll('.cart-item');
             let subtotal = 0.00;
+            console.log(`Calculating cart total for ${cartItems.length} items`);
+            
             cartItems.forEach(item => {
                 const price = parseFloat(item.querySelector('.item-price').dataset.price);
                 const quantity = parseInt(item.querySelector('.qty-display').textContent);
-                console.log(price, quantity);
+                console.log(`Item: price=${price}, quantity=${quantity}`);
                 subtotal += price * quantity;
             });
+            
+            console.log(`Subtotal: ₹${subtotal.toFixed(2)}`);
             document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
             document.getElementById('total').textContent = `₹${(subtotal + 50).toFixed(2)}`;
         }
+
+        function removeItem(button) {
+            const cartItem = button.closest('.cart-item');
+            const productId = parseInt(cartItem.dataset.productId);
+
+            // Remove the item from the cart array using the product ID
+            cart = cart.filter(item => item.id !== productId);
+
+            // Update local storage
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            // Remove the item from the DOM
+            cartItem.remove();
+
+            // Recalculate the cart total
+            calculateCart();
+        }
+        
+        function updateQuantity(button, change) {
+            const cartItem = button.closest('.cart-item');
+            const quantityDisplay = cartItem.querySelector('.qty-display');
+            const priceElement = cartItem.querySelector('.item-price');
+            const productId = parseInt(cartItem.dataset.productId);
+            
+            let currentQuantity = parseInt(quantityDisplay.textContent);
+            let newQuantity = currentQuantity + change;
+            let availableStock = parseInt(priceElement.dataset.available);
+            let unitPrice = parseFloat(priceElement.dataset.price);
+
+            // Ensure quantity doesn't go below 1 or above available stock
+            if (newQuantity < 1) newQuantity = 1;
+            if (newQuantity > availableStock) newQuantity = availableStock;
+
+            // Update the quantity display
+            quantityDisplay.textContent = newQuantity;
+
+            // Update the cart array with the new quantity
+            const cartItemIndex = cart.findIndex(item => item.id === productId);
+            if (cartItemIndex !== -1) {
+                cart[cartItemIndex].quantity = newQuantity;
+            }
+
+            // Update local storage
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            // Recalculate the cart total
+            calculateCart();
+        }
+
+        // Function to handle order placement
         function placeOrder() {
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
@@ -412,6 +512,6 @@
             
             alert('Order placed successfully! Thank you for your order.');
         }
-    </script>
+    </script>      
 </body>
 </html>

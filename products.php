@@ -381,6 +381,7 @@ $conn->close();
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="container">
@@ -606,5 +607,61 @@ $conn->close();
             }
         }
     </script>
+    <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Add to cart
+    function addToCart(productId, button) {
+        const productCard = button.closest('.product-card');
+        const availableText = productCard.querySelector('.product-quantity');
+        let available = parseInt(availableText.textContent.match(/\d+/)[0]);
+
+        if (available <= 0) {
+            alert("Out of stock!");
+            return;
+        }
+
+        // Find product in cart
+        const existingItem = cart.find(item => item.id === productId);
+
+        if (existingItem) {
+            if (existingItem.quantity >= available) {
+                alert("Cannot add more than available stock!");
+                return;
+            }
+            existingItem.quantity++;
+        } else {
+            cart.push({ id: productId, quantity: 1 });
+        }
+
+        available -= 1;
+        availableText.textContent = `Available: ${available} units`;
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        button.textContent = 'Added';
+        button.style.backgroundColor = 'white';
+        button.style.color = 'green';
+        button.style.border = "1px solid green";
+
+        // Update the backend stock
+        updateStock(productId, available);
+    }
+
+    // Update stock in database (AJAX)
+    function updateStock(productId, available) {
+        fetch('actions/update_stock.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: productId, available: available })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) console.error("Stock update failed:", data.error);
+        })
+        .catch(err => console.error("Network error:", err));
+    }
+    </script>
+
 </body>
 </html>

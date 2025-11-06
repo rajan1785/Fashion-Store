@@ -81,7 +81,7 @@ $conn->close();
                     <div class="product-description"><?=$product['description'];?></div>
                     <div class="product-price">₹<?=$product['price'];?></div>
                     <div class="product-quantity">Available: <?=$product['avl_unit'];?> units</div>
-                    <button class="buy-button" onclick="addToCart(<?=$product['id'];?>, this)">Add to Cart</button>
+                    <button class="buy-button" onclick="addToCart(<?=$product['id'];?>, '<?=$product['name'];?>', <?=$product['price'];?>, this)">Add to Cart</button>
                 </div>
                 <?php endforeach;?>
                 <?php if (empty($products)): ?>
@@ -101,39 +101,48 @@ $conn->close();
     
     <script>
         let cart = [];
-        let cartCount = 0;
-        function addToCart(productId,element) {
+        
+        function updateCartCount() {
+            const cartCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            document.getElementById('cartCount').textContent = cartCount;
+        }
+        
+        function addToCart(productId, productName, productPrice, element) {
             // Check if the product is already in the cart
-            if (cart.includes(productId)) {
-            // Find the index of the product
-            const index = cart.indexOf(productId);
-            if (index !== -1) {
-                cart.splice(index, 1); // remove that exact product
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                // Product exists, remove it
+                cart = cart.filter(item => item.id !== productId);
+                element.textContent = 'Add to Cart';
+                element.style.backgroundColor = 'green';
+                element.style.color = 'white';
+                element.style.border = "1px solid green";
+            } else {
+                // Product doesn't exist, add it with quantity 1
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1
+                });
+                element.textContent = 'Added';
+                element.style.backgroundColor = 'white';
+                element.style.color = 'green';
+                element.style.border = "1px solid green";
             }
-
-            cartCount--;
-            element.textContent = 'Add to Cart';
-            element.style.backgroundColor = 'green';
-            element.style.color = 'white';
-            element.style.border = "1px solid green";
-        } else {
-            cart.push(productId);
-            cartCount++;
-            element.textContent = 'Added';
-            element.style.backgroundColor = 'white';
-            element.style.color = 'green';
-            element.style.border = "1px solid green";
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        cartCount = cart.length;
-        const cartBtn = document.querySelector('#cartCount');
-        cartBtn.textContent = `${cartCount}`;
-
             
-        console.log(cart);
+            // Save to localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
             
-            // alert('Product added to cart!');
+            // Update cart count
+            updateCartCount();
+            
+            console.log(cart);
         }
+        
+        // Initialize cart count on page load
+        updateCartCount();
         
     </script>
 </body>

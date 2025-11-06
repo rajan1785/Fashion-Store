@@ -15,16 +15,30 @@ if (empty($cart)) {
     exit;
 }
 
-// --- 4. Prepare a safe SQL query ---
-$placeholders = implode(',', array_fill(0, count($cart), '?'));
+// --- 4. Extract product IDs from cart objects ---
+$productIds = [];
+foreach ($cart as $item) {
+    if (isset($item['id'])) {
+        $productIds[] = $item['id'];
+    }
+}
+
+// --- 5. Handle empty product IDs case ---
+if (empty($productIds)) {
+    echo json_encode([]);
+    exit;
+}
+
+// --- 6. Prepare a safe SQL query ---
+$placeholders = implode(',', array_fill(0, count($productIds), '?'));
 $sql = "SELECT id, name, description, avl_unit, price, photo FROM products WHERE id IN ($placeholders)";
 $stmt = $conn->prepare($sql);
 
-// --- 5. Bind parameters dynamically ---
-$types = str_repeat('i', count($cart)); // all IDs are integers
-$stmt->bind_param($types, ...$cart);
+// --- 7. Bind parameters dynamically ---
+$types = str_repeat('i', count($productIds)); // all IDs are integers
+$stmt->bind_param($types, ...$productIds);
 
-// --- 6. Execute and fetch results ---
+// --- 8. Execute and fetch results ---
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -33,10 +47,10 @@ while ($row = $result->fetch_assoc()) {
     $products[] = $row;
 }
 
-// --- 7. Send back JSON ---
+// --- 9. Send back JSON ---
 echo json_encode($products);
 
-// --- 8. Clean up ---
+// --- 10. Clean up ---
 $stmt->close();
 $conn->close();
 ?>
