@@ -7,7 +7,20 @@ if (isset($_SESSION['username'])) {
     // If not set, redirect to login page or show an error
     $logged = 1;
 }
+
+
+// require 'config/db.php';
+
+// $sql = "SELECT * FROM products";
+// $stmt = $conn->prepare($sql);
+// $result = $stmt-get_result();
+// $products = $result ? $result->fetch_all(MYSQLI_ASSOC): [];
+
+// $stmt->close();
+// $conn->close();
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -537,6 +550,18 @@ if (isset($_SESSION['username'])) {
             }
         }
         
+        <?
+        require 'config/db.php';
+
+        $sql = "SELECT * FROM products";
+        $stmt = $conn->prepare($sql);
+        $result = $stmt-get_result();
+        $products = $result ? $result->fetch_all(MYSQLI_ASSOC): [];
+
+        $stmt->close();
+        $conn->close();
+        ?>
+
         function viewOrder(index) {
             const order = dummyOrders[index];
             let html = '';

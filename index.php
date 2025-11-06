@@ -26,7 +26,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Being Aesthetic</title>
+    <title>Elite Fashion Store</title>
     <link rel="stylesheet" href="assets/css/home.css">
     <style>
         .product-image img {
@@ -41,8 +41,8 @@ $conn->close();
 <body>
     <header>
         <div class="container">
-            <div class="store-name">Aesthetic Store</div>
-            <div class="store-tagline">Choose Ur Passion</div>
+            <div class="store-name">Elite Fashion Store</div>
+            <div class="store-tagline">Your Style, Our Passion</div>
         </div>
     </header>
 
@@ -81,7 +81,7 @@ $conn->close();
                     <div class="product-description"><?=$product['description'];?></div>
                     <div class="product-price">₹<?=$product['price'];?></div>
                     <div class="product-quantity">Available: <?=$product['avl_unit'];?> units</div>
-                    <button class="buy-button" onclick="addToCart('Cotton T-Shirt', 499)">Add to Cart</button>
+                    <button class="buy-button" onclick="addToCart(<?=$product['id'];?>, this)">Add to Cart</button>
                 </div>
                 <?php endforeach;?>
                 <?php if (empty($products)): ?>
@@ -100,45 +100,40 @@ $conn->close();
     </footer>
     
     <script>
-        function addToCart(productName, price) {
-            let cart = [];
-            const storedCart = localStorage.getItem('cart');
-            if (storedCart) {
-                cart = JSON.parse(storedCart);
+        let cart = [];
+        let cartCount = 0;
+        function addToCart(productId,element) {
+            // Check if the product is already in the cart
+            if (cart.includes(productId)) {
+            // Find the index of the product
+            const index = cart.indexOf(productId);
+            if (index !== -1) {
+                cart.splice(index, 1); // remove that exact product
             }
+
+            cartCount--;
+            element.textContent = 'Add to Cart';
+            element.style.backgroundColor = 'green';
+            element.style.color = 'white';
+            element.style.border = "1px solid green";
+        } else {
+            cart.push(productId);
+            cartCount++;
+            element.textContent = 'Added';
+            element.style.backgroundColor = 'white';
+            element.style.color = 'green';
+            element.style.border = "1px solid green";
+        }
+        cartCount = cart.length;
+        const cartBtn = document.querySelector('#cartCount');
+        cartBtn.textContent = `${cartCount}`;
+
             
-            const existingProduct = cart.find(item => item.name === productName);
-            if (existingProduct) {
-                existingProduct.quantity += 1;
-            } else {
-                cart.push({
-                    name: productName,
-                    price: price,
-                    quantity: 1
-                });
-            }
+        console.log(cart);
             
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartCount();
-            alert(productName + ' added to cart!');
+            // alert('Product added to cart!');
         }
         
-        function updateCartCount() {
-            let cart = [];
-            const storedCart = localStorage.getItem('cart');
-            if (storedCart) {
-                cart = JSON.parse(storedCart);
-            }
-            
-            let totalItems = 0;
-            for (let i = 0; i < cart.length; i++) {
-                totalItems += cart[i].quantity;
-            }
-            
-            document.getElementById('cartCount').textContent = totalItems;
-        }
-        
-        updateCartCount();
     </script>
 </body>
 </html>

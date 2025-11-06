@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $originalName = basename($_FILES['photo']['name']);
         $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
         
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $allowedExtensions = ['jpg','jpeg', 'png', 'gif', 'webp'];
         if (!in_array($extension, $allowedExtensions)) {
             die("Invalid file type. Allowed: " . implode(', ', $allowedExtensions));
         }
