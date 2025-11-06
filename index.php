@@ -62,7 +62,7 @@ $conn->close();
         </ul>
     </nav>
     
-    <div class="cart-container">
+    <div class="cart-container" onclick="window.location.href='billing.php'" style="cursor: pointer;">
         <span class="cart-icon">🛒</span>
         <span class="cart-count">Cart: <span id="cartCount">0</span> items</span>
     </div>
@@ -124,6 +124,7 @@ $conn->close();
             element.style.color = 'green';
             element.style.border = "1px solid green";
         }
+        localStorage.setItem('cart', JSON.stringify(cart));
         cartCount = cart.length;
         const cartBtn = document.querySelector('#cartCount');
         cartBtn.textContent = `${cartCount}`;

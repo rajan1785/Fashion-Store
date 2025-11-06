@@ -306,50 +306,11 @@
                     <!-- Static Cart Items -->
                     <div class="cart-item">
                         <div class="item-details">
-                            <div class="item-name">Classic Cotton T-Shirt</div>
-                            <div class="item-price">₹499 each</div>
+                            <div class="item-name">No item added</div>
+                            <div class="item-price">₹0.00 each</div>
                             <div class="item-quantity">
                                 <button class="qty-btn">-</button>
-                                <span class="qty-display">2</span>
-                                <button class="qty-btn">+</button>
-                            </div>
-                        </div>
-                        <button class="remove-btn">Remove</button>
-                    </div>
-                    
-                    <div class="cart-item">
-                        <div class="item-details">
-                            <div class="item-name">Denim Jeans - Blue</div>
-                            <div class="item-price">₹1,299 each</div>
-                            <div class="item-quantity">
-                                <button class="qty-btn">-</button>
-                                <span class="qty-display">1</span>
-                                <button class="qty-btn">+</button>
-                            </div>
-                        </div>
-                        <button class="remove-btn">Remove</button>
-                    </div>
-                    
-                    <div class="cart-item">
-                        <div class="item-details">
-                            <div class="item-name">Casual Sneakers</div>
-                            <div class="item-price">₹1,999 each</div>
-                            <div class="item-quantity">
-                                <button class="qty-btn">-</button>
-                                <span class="qty-display">1</span>
-                                <button class="qty-btn">+</button>
-                            </div>
-                        </div>
-                        <button class="remove-btn">Remove</button>
-                    </div>
-                    
-                    <div class="cart-item">
-                        <div class="item-details">
-                            <div class="item-name">Cotton Hoodie - Grey</div>
-                            <div class="item-price">₹899 each</div>
-                            <div class="item-quantity">
-                                <button class="qty-btn">-</button>
-                                <span class="qty-display">1</span>
+                                <span class="qty-display">0</span>
                                 <button class="qty-btn">+</button>
                             </div>
                         </div>
@@ -364,7 +325,7 @@
                     </div>
                     <div class="total-row">
                         <span>Delivery Charges:</span>
-                        <span id="delivery">₹50</span>
+                        <span id="delivery">₹50.00</span>
                     </div>
                     <div class="total-row">
                         <span class="total-amount">Total:</span>
@@ -384,6 +345,59 @@
     </footer>
     
     <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('actions/fetch_products.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cart: cart })
+            })
+            .then(res => res.json())
+            .then(result => {
+                console.log(result);
+                loadCartItems(result);
+                // handleProducts(result);
+            })
+            .catch(err => console.error('Save error:', err));
+        });
+        
+        function loadCartItems(data){
+            const cartSection = document.querySelector('#cartItems');
+            let items = [];
+            data.forEach(product => {
+                items.push(`
+                    <div class="cart-item">
+                        <div class="item-details">
+                            <div class="item-name">${product.name}</div>
+                            <div class="item-price" data-price="${product.price}">₹${product.price} each</div>
+                            <div class="item-quantity">
+                                <button class="qty-btn">-</button>
+                                <span class="qty-display">1</span>
+                                <button class="qty-btn">+</button>
+                            </div>
+                        </div>
+                        <button class="remove-btn">Remove</button>
+                    </div>
+                `);
+
+            });
+            cartSection.innerHTML = items.join('');
+            calculateCart();
+        }
+
+        function calculateCart(){
+            const cartItems = document.querySelectorAll('.cart-item');
+            let subtotal = 0.00;
+            cartItems.forEach(item => {
+                const price = parseFloat(item.querySelector('.item-price').dataset.price);
+                const quantity = parseInt(item.querySelector('.qty-display').textContent);
+                console.log(price, quantity);
+                subtotal += price * quantity;
+            });
+            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('total').textContent = `₹${(subtotal + 50).toFixed(2)}`;
+        }
         function placeOrder() {
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
