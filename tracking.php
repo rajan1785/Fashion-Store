@@ -1,11 +1,25 @@
 <?php
-session_start();
-$logged = 0;
-// Check if 'username' exists in the session
-if (isset($_SESSION['username'])) {
-    // If not set, redirect to login page or show an error
-    $logged = 1;
+if(isset($_GET['phone']) and $_GET['action'] == 'track') {
+    $phone = intval($_GET['phone']);
+    require 'config/db.php';
+    $sql = "SELECT * FROM orders WHERE phone = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $phone);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $orders = [];
+    if($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $orders[] = $row;
+        }
+    } else {
+        header("Location: tracking.php?phone=$phone&msg=no_order");
+    }
 }
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -281,242 +295,73 @@ if (isset($_SESSION['username'])) {
     <div class="container">
         <div class="tracking-section">
             <h2 class="section-title">Track Your Orders</h2>
-            
+            <form method="GET" action="tracking.php">
             <div class="search-box">
-                <input type="text" class="search-input" id="phoneSearch" placeholder="Enter your phone number">
-                <button class="search-btn" onclick="alert('Search functionality - Enter phone number to filter orders')">Search Orders</button>
+                <input type="hidden" name="action" value="track">
+                <input type="number" class="search-input" id="phoneSearch" name="phone" value="<?php echo isset($_GET['phone']) && $_GET['action'] == 'track' ? $_GET['phone'] : ''; ?>" placeholder="Enter your phone number">
+                <button class="search-btn" type="submit">Search Orders</button>
             </div>
             
             <div id="ordersContainer">
+                <?php if($_GET['msg'] == 'no_order'):?>
+                    <h2 style="color: red; text-align: center;">No orders found for <?=$_GET['phone'];?></h2>
+                <?php endif;?>
                 <!-- Order 1 - Shipped -->
+                <?php foreach($orders as $order):?>
                 <div class="order-card">
                     <div class="order-header">
                         <div>
-                            <div class="order-id">Order ID: ORD1730878954321</div>
-                            <div class="order-date">11/4/2024, 6:45 PM</div>
+                            <div class="order-id">Order ID: <?= $order['id'];?></div>
+                            <div class="order-date"><?= date('h:i A j M, Y', strtotime($order['created_at'])); ?></div>
                         </div>
-                        <div class="status-badge status-shipped">Shipped</div>
+                        <div class="status-badge status-shipped"><?php echo $order['status'];?></div>
                     </div>
                     
                     <div class="order-details">
                         <div class="detail-item">
                             <div class="detail-label">Customer Name</div>
-                            <div class="detail-value">Amit Patel</div>
+                            <div class="detail-value"><?=$order['customer_name'];?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Phone</div>
-                            <div class="detail-value">+91 76543 21098</div>
+                            <div class="detail-value"><?=$order['phone'];?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Delivery Address</div>
-                            <div class="detail-value">789 Ring Road, Ahmedabad - 380001</div>
+                            <div class="detail-value"><?=$order['address'];?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Email</div>
-                            <div class="detail-value">amit.patel@email.com</div>
+                            <div class="detail-value"><?=$order['notes'];?></div>
                         </div>
                     </div>
                     
                     <div class="order-items">
                         <div class="order-items-title">Order Items:</div>
+                        <?php
+                        $sql = "SELECT * FROM order_items WHERE order_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param('s', $order['id']);
+                        $stmt->execute();
+                        $order_items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                        $total_amount = 50.00;
+                        ?>
+                        <?php foreach($order_items as $item):?>
+                        <?php $pAmount = ($item['price'] * $item['quantity']);?>
                         <div class="item-row">
-                            <span>Denim Jeans - Blue × 1</span>
-                            <span>₹1,299</span>
+                            <span><?=$item['name'];?>  × <?=$item['quantity'];?></span>
+                            <span>₹<?=$pAmount;?></span>
                         </div>
-                        <div class="item-row">
-                            <span>Summer Dress × 1</span>
-                            <span>₹1,349</span>
-                        </div>
+                        <?php $total_amount = $total_amount + $pAmount;?>
+                        <?php endforeach;?>
                         <div class="total-row">
                             <span>Total Amount:</span>
-                            <span>₹2,698</span>
+                            <span>₹<?=$total_amount?></span>
                         </div>
+                        <small>₹50 Delivery Charge Included</small>
                     </div>
                 </div>
-
-                <!-- Order 2 - Processing -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <div class="order-id">Order ID: ORD1730882156789</div>
-                            <div class="order-date">11/5/2024, 9:15 AM</div>
-                        </div>
-                        <div class="status-badge status-processing">Processing</div>
-                    </div>
-                    
-                    <div class="order-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Customer Name</div>
-                            <div class="detail-value">Priya Singh</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Phone</div>
-                            <div class="detail-value">+91 87654 32109</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Delivery Address</div>
-                            <div class="detail-value">456 Park Street, Delhi - 110001</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">priya.singh@email.com</div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-items-title">Order Items:</div>
-                        <div class="item-row">
-                            <span>Casual Sneakers × 2</span>
-                            <span>₹3,998</span>
-                        </div>
-                        <div class="item-row">
-                            <span>Classic T-Shirt × 1</span>
-                            <span>₹499</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Total Amount:</span>
-                            <span>₹4,548</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order 3 - Delivered -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <div class="order-id">Order ID: ORD1730875123456</div>
-                            <div class="order-date">11/4/2024, 3:20 PM</div>
-                        </div>
-                        <div class="status-badge status-delivered">Delivered</div>
-                    </div>
-                    
-                    <div class="order-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Customer Name</div>
-                            <div class="detail-value">Sneha Reddy</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Phone</div>
-                            <div class="detail-value">+91 65432 10987</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Delivery Address</div>
-                            <div class="detail-value">321 Beach Road, Chennai - 600001</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">sneha.reddy@email.com</div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-items-title">Order Items:</div>
-                        <div class="item-row">
-                            <span>Casual Sneakers × 2</span>
-                            <span>₹3,998</span>
-                        </div>
-                        <div class="item-row">
-                            <span>Classic T-Shirt × 3</span>
-                            <span>₹1,497</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Total Amount:</span>
-                            <span>₹5,497</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order 4 - Pending -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <div class="order-id">Order ID: ORD1730885432123</div>
-                            <div class="order-date">11/5/2024, 10:30 AM</div>
-                        </div>
-                        <div class="status-badge status-pending">Pending</div>
-                    </div>
-                    
-                    <div class="order-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Customer Name</div>
-                            <div class="detail-value">Rahul Sharma</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Phone</div>
-                            <div class="detail-value">+91 98765 43210</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Delivery Address</div>
-                            <div class="detail-value">123 MG Road, Mumbai - 400001</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">rahul.sharma@email.com</div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-items-title">Order Items:</div>
-                        <div class="item-row">
-                            <span>Denim Jeans - Blue × 2</span>
-                            <span>₹2,598</span>
-                        </div>
-                        <div class="item-row">
-                            <span>Cotton Hoodie - Grey × 1</span>
-                            <span>₹899</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Total Amount:</span>
-                            <span>₹3,297</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order 5 - Cancelled -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <div class="order-id">Order ID: ORD1730870123456</div>
-                            <div class="order-date">11/3/2024, 5:30 PM</div>
-                        </div>
-                        <div class="status-badge status-cancelled">Cancelled</div>
-                    </div>
-                    
-                    <div class="order-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Customer Name</div>
-                            <div class="detail-value">Neha Kapoor</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Phone</div>
-                            <div class="detail-value">+91 55555 44444</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Delivery Address</div>
-                            <div class="detail-value">555 Green Avenue, Kolkata - 700001</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">neha.kapoor@email.com</div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-items-title">Order Items:</div>
-                        <div class="item-row">
-                            <span>Summer Dress × 2</span>
-                            <span>₹2,698</span>
-                        </div>
-                        <div class="item-row">
-                            <span>Classic T-Shirt × 1</span>
-                            <span>₹499</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Total Amount:</span>
-                            <span>₹3,197</span>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach;?>
             </div>
         </div>
     </div>

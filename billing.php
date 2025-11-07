@@ -555,7 +555,7 @@
                     // Clear the cart
                     localStorage.removeItem('cart');
                     // Redirect to tracking or confirmation page
-                    window.location.href = "tracking.php?order_id=" + data.order_id;
+                    window.location.href = "tracking.php?action=track&phone=" + phone;
                 } else {
                     alert('❌ Order failed: ' + data.message);
                 }
