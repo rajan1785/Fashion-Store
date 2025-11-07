@@ -233,6 +233,7 @@
             }
         }
     </style>
+    
 </head>
 <body>
     <header>
@@ -273,10 +274,10 @@
                         <input type="tel" id="phone" required>
                     </div>
                     
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" id="email">
-                    </div>
+                    </div> -->
                     
                     <div class="form-group">
                         <label for="address">Delivery Address *</label>
@@ -499,19 +500,69 @@
 
         // Function to handle order placement
         function placeOrder() {
+            let finalOrderData = []
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
             const address = document.getElementById('address').value;
             const city = document.getElementById('city').value;
             const pincode = document.getElementById('pincode').value;
-            
-            if (!name || !phone || !address || !city || !pincode) {
+            const notes = document.getElementById('notes').value;
+            if (!name || !phone || !address || !city || !pincode || !notes) {
+                console.log('name:', name, 'phone:', phone, 'address:', address, 'city:', city, 'pincode:', pincode, 'notes:', notes);
                 alert('Please fill all required fields');
                 return;
             }
             
-            alert('Order placed successfully! Thank you for your order.');
+            const cartItems = document.querySelectorAll('.cart-item');
+            let cartData = [];
+            cartItems.forEach(item => {
+                product =[]
+                const productName = item.querySelector('.item-name').textContent;
+                const productPrice = item.querySelector('.item-price').dataset.price;
+                const quantity = item.querySelector('.qty-display').textContent;
+                if(!productName || !productPrice || !quantity) {
+                    alert('invalid product');
+                    return;
+                }
+                product.push(productName)
+                product.push(productPrice)
+                product.push(quantity)
+                cartData.push(product)
+            });
+
+            finalOrderData.push(name)
+            finalOrderData.push(phone)
+            finalOrderData.push(address)
+            finalOrderData.push(city)
+            finalOrderData.push(pincode)
+            finalOrderData.push(notes)
+            finalOrderData.push(cartData)
+
+            // Send data to backend via POST
+            fetch('actions/place_order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(finalOrderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Server response:", data);
+                if (data.success) {
+                    alert('✅ Order placed successfully! You can track your order now.');
+                    // Clear the cart
+                    localStorage.removeItem('cart');
+                    // Redirect to tracking or confirmation page
+                    window.location.href = "tracking.php?order_id=" + data.order_id;
+                } else {
+                    alert('❌ Order failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error placing order:', error);
+                alert('⚠️ There was an error placing your order. Please try again.', error);
+            });
         }
+        
     </script>      
 </body>
 </html>
