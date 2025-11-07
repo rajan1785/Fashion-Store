@@ -507,6 +507,9 @@
             const city = document.getElementById('city').value;
             const pincode = document.getElementById('pincode').value;
             const notes = document.getElementById('notes').value;
+            if(notes === "") {
+                notes = "none"
+            }
             if (!name || !phone || !address || !city || !pincode || !notes) {
                 console.log('name:', name, 'phone:', phone, 'address:', address, 'city:', city, 'pincode:', pincode, 'notes:', notes);
                 alert('Please fill all required fields');
