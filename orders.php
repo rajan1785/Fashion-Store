@@ -312,6 +312,85 @@ if (isset($_SESSION['username'])) {
             padding: 20px 0;
             margin-top: 50px;
         }
+
+        /* Modal hardcoded content */
+        .modal-body {
+            padding: 15px 0;
+        }
+
+        .order-section {
+            margin-bottom: 20px;
+        }
+
+        .order-section h4 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .order-section p {
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .order-items {
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            margin-top: 10px;
+            border-top: 2px solid #27ae60;
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        /* Status badges for hardcoded orders */
+        .status-badge {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-shipped {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         
         @media (max-width: 768px) {
             .orders-table {
@@ -323,6 +402,7 @@ if (isset($_SESSION['username'])) {
             }
         }
     </style>
+    
 </head>
 <body>
     <header>
@@ -358,15 +438,57 @@ if (isset($_SESSION['username'])) {
             ?>
     </div>
     
-    <div id="orderModal" class="modal">
+    <div id="orderModal" class="modal" style="display:block;"> <!-- Set display:block to show modal -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Order Details</h3>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <span class="close-btn">&times;</span>
             </div>
-            <div id="modalBody"></div>
+
+            <div id="modalBody" class="modal-body">
+
+                <!-- Order Info -->
+                <div class="order-section">
+                    <p><strong>Order ID:</strong> #ORD12345</p>
+                    <p><strong>Date:</strong> 2025-11-07</p>
+                    <p><strong>Status:</strong> <span class="status-badge status-processing">Processing</span></p>
+                </div>
+
+                <!-- Customer Details -->
+                <div class="order-section">
+                    <h4>Customer Details:</h4>
+                    <p><strong>Name:</strong> John Doe</p>
+                    <p><strong>Phone:</strong> +91 9876543210</p>
+                    <p><strong>Email:</strong> johndoe@example.com</p>
+                    <p><strong>Address:</strong> 123, Main Street, Mumbai - 400001</p>
+                    <p><strong>Notes:</strong> Please deliver between 9 AM - 5 PM.</p>
+                </div>
+
+                <!-- Order Items -->
+                <div class="order-section order-items">
+                    <h4>Order Items:</h4>
+                    <div class="order-item">
+                        <span>Blue T-Shirt × 2</span>
+                        <span>₹1200</span>
+                    </div>
+                    <div class="order-item">
+                        <span>Black Jeans × 1</span>
+                        <span>₹1500</span>
+                    </div>
+                    <div class="order-item">
+                        <span>Red Cap × 3</span>
+                        <span>₹450</span>
+                    </div>
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <span>₹3150</span>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
+
     
     <footer>
         <div class="container">
@@ -375,97 +497,9 @@ if (isset($_SESSION['username'])) {
     </footer>
     
     <script>
-        const dummyOrders = [
-            {
-                orderId: 'ORD1730885432123',
-                date: '11/5/2024, 10:30 AM',
-                name: 'Rahul Sharma',
-                phone: '+91 98765 43210',
-                email: 'rahul.sharma@email.com',
-                address: '123 MG Road',
-                city: 'Mumbai',
-                pincode: '400001',
-                notes: 'Please deliver between 2-5 PM',
-                status: 'Pending',
-                total: 3297,
-                items: [
-                    { name: 'Denim Jeans - Blue', price: 1299, quantity: 2 },
-                    { name: 'Cotton Hoodie - Grey', price: 899, quantity: 1 }
-                ]
-            }
-        ];
         
-        function filterOrders(status) {
-            const buttons = document.querySelectorAll('.filter-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const rows = document.querySelectorAll('.orders-table tbody tr');
-            let visibleCount = 0;
-            
-            rows.forEach(row => {
-                const statusBadge = row.querySelector('.status-badge').textContent;
-                if (status === 'All' || statusBadge === status) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            if (visibleCount === 0) {
-                document.getElementById('ordersTableContainer').innerHTML = '<div style="text-align: center; padding: 60px; color: #999; font-size: 18px;">No orders found</div>';
-            }
-        }
-        
-        <?php
-        // require 'config/db.php';
-
-        // $sql = "SELECT * FROM products";
-        // $stmt = $conn->prepare($sql);
-        // $result = $stmt->get_result();
-        // $products = $result ? $result->fetch_all(MYSQLI_ASSOC): [];
-
-        // $stmt->close();
-        // $conn->close();
-        ?>
 
         function viewOrder(index) {
-            const order = dummyOrders[index];
-            let html = '';
-            
-            html += '<div style="margin-bottom: 20px;">';
-            html += '<p><strong>Order ID:</strong> ' + order.orderId + '</p>';
-            html += '<p><strong>Date:</strong> ' + order.date + '</p>';
-            html += '<p><strong>Status:</strong> <span class="status-badge status-' + order.status.toLowerCase() + '">' + order.status + '</span></p>';
-            html += '</div>';
-            
-            html += '<div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">';
-            html += '<h4 style="margin-bottom: 10px;">Customer Details:</h4>';
-            html += '<p><strong>Name:</strong> ' + order.name + '</p>';
-            html += '<p><strong>Phone:</strong> ' + order.phone + '</p>';
-            html += '<p><strong>Email:</strong> ' + order.email + '</p>';
-            html += '<p><strong>Address:</strong> ' + order.address + ', ' + order.city + ' - ' + order.pincode + '</p>';
-            if (order.notes) {
-                html += '<p><strong>Notes:</strong> ' + order.notes + '</p>';
-            }
-            html += '</div>';
-            
-            html += '<div style="margin-bottom: 20px;">';
-            html += '<h4 style="margin-bottom: 10px;">Order Items:</h4>';
-            order.items.forEach(item => {
-                html += '<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">';
-                html += '<span>' + item.name + ' × ' + item.quantity + '</span>';
-                html += '<span>₹' + (item.price * item.quantity) + '</span>';
-                html += '</div>';
-            });
-            html += '<div style="display: flex; justify-content: space-between; padding: 15px 0; margin-top: 10px; border-top: 2px solid #27ae60; font-size: 18px; font-weight: bold; color: #27ae60;">';
-            html += '<span>Total:</span>';
-            html += '<span>₹' + order.total + '</span>';
-            html += '</div>';
-            html += '</div>';
-            
-            document.getElementById('modalBody').innerHTML = html;
             document.getElementById('orderModal').style.display = 'block';
         }
         
