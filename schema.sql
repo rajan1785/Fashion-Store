@@ -16,7 +16,7 @@ CREATE TABLE orders (
     address VARCHAR(150) NOT NULL,
     city VARCHAR(50) NOT NULL,
     notes TEXT,
-    status ENUM('Pending', 'Accepted', 'Processed', 'In Transit', 'Delivered') DEFAULT 'Pending',
+    status ENUM('Pending', 'Accepted', 'Processing', 'Shipped', 'Delivered') DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

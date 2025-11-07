@@ -1,4 +1,12 @@
 <?php
+session_start();
+$logged = 0;
+// Check if 'username' exists in the session
+if (isset($_SESSION['username'])) {
+    // If not set, redirect to login page or show an error
+    $logged = 1;
+}
+
 if(isset($_GET['phone']) and $_GET['action'] == 'track') {
     $phone = intval($_GET['phone']);
     require 'config/db.php';

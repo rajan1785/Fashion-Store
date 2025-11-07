@@ -7,18 +7,6 @@ if (isset($_SESSION['username'])) {
     // If not set, redirect to login page or show an error
     $logged = 1;
 }
-
-
-// require 'config/db.php';
-
-// $sql = "SELECT * FROM products";
-// $stmt = $conn->prepare($sql);
-// $result = $stmt-get_result();
-// $products = $result ? $result->fetch_all(MYSQLI_ASSOC): [];
-
-// $stmt->close();
-// $conn->close();
-
 ?>
 
 
@@ -367,8 +355,7 @@ if (isset($_SESSION['username'])) {
             }elseif($logged == 1){
                 include 'components/manage-order-section.php';
             }
-
-        ?>
+            ?>
     </div>
     
     <div id="orderModal" class="modal">
@@ -405,125 +392,6 @@ if (isset($_SESSION['username'])) {
                     { name: 'Denim Jeans - Blue', price: 1299, quantity: 2 },
                     { name: 'Cotton Hoodie - Grey', price: 899, quantity: 1 }
                 ]
-            },
-            {
-                orderId: 'ORD1730882156789',
-                date: '11/5/2024, 9:15 AM',
-                name: 'Priya Singh',
-                phone: '+91 87654 32109',
-                email: 'priya.singh@email.com',
-                address: '456 Park Street',
-                city: 'Delhi',
-                pincode: '110001',
-                notes: '',
-                status: 'Processing',
-                total: 4548,
-                items: [
-                    { name: 'Casual Sneakers', price: 1999, quantity: 2 },
-                    { name: 'Classic T-Shirt', price: 499, quantity: 1 }
-                ]
-            },
-            {
-                orderId: 'ORD1730878954321',
-                date: '11/4/2024, 6:45 PM',
-                name: 'Amit Patel',
-                phone: '+91 76543 21098',
-                email: 'amit.patel@email.com',
-                address: '789 Ring Road',
-                city: 'Ahmedabad',
-                pincode: '380001',
-                notes: 'Call before delivery',
-                status: 'Shipped',
-                total: 2698,
-                items: [
-                    { name: 'Denim Jeans - Blue', price: 1299, quantity: 1 },
-                    { name: 'Summer Dress', price: 1349, quantity: 1 }
-                ]
-            },
-            {
-                orderId: 'ORD1730875123456',
-                date: '11/4/2024, 3:20 PM',
-                name: 'Sneha Reddy',
-                phone: '+91 65432 10987',
-                email: 'sneha.reddy@email.com',
-                address: '321 Beach Road',
-                city: 'Chennai',
-                pincode: '600001',
-                notes: '',
-                status: 'Delivered',
-                total: 5497,
-                items: [
-                    { name: 'Casual Sneakers', price: 1999, quantity: 2 },
-                    { name: 'Classic T-Shirt', price: 499, quantity: 3 }
-                ]
-            },
-            {
-                orderId: 'ORD1730871987654',
-                date: '11/4/2024, 11:30 AM',
-                name: 'Vikram Kumar',
-                phone: '+91 54321 09876',
-                email: 'vikram.k@email.com',
-                address: '654 Lake View',
-                city: 'Bangalore',
-                pincode: '560001',
-                notes: 'Weekend delivery preferred',
-                status: 'Pending',
-                total: 1948,
-                items: [
-                    { name: 'Cotton Hoodie - Grey', price: 899, quantity: 2 }
-                ]
-            },
-            {
-                orderId: 'ORD1730868765432',
-                date: '11/3/2024, 8:00 PM',
-                name: 'Anjali Mehta',
-                phone: '+91 43210 98765',
-                email: 'anjali.mehta@email.com',
-                address: '987 Station Road',
-                city: 'Pune',
-                pincode: '411001',
-                notes: '',
-                status: 'Processing',
-                total: 3847,
-                items: [
-                    { name: 'Summer Dress', price: 1349, quantity: 2 },
-                    { name: 'Classic T-Shirt', price: 499, quantity: 3 }
-                ]
-            },
-            {
-                orderId: 'ORD1730865543210',
-                date: '11/3/2024, 2:45 PM',
-                name: 'Rajesh Verma',
-                phone: '+91 32109 87654',
-                email: 'rajesh.verma@email.com',
-                address: '147 Mall Road',
-                city: 'Jaipur',
-                pincode: '302001',
-                notes: 'Gate code: 1234',
-                status: 'Shipped',
-                total: 2397,
-                items: [
-                    { name: 'Denim Jeans - Blue', price: 1299, quantity: 1 },
-                    { name: 'Classic T-Shirt', price: 499, quantity: 2 }
-                ]
-            },
-            {
-                orderId: 'ORD1730862321098',
-                date: '11/3/2024, 10:00 AM',
-                name: 'Kavita Desai',
-                phone: '+91 21098 76543',
-                email: 'kavita.desai@email.com',
-                address: '258 Garden Street',
-                city: 'Hyderabad',
-                pincode: '500001',
-                notes: '',
-                status: 'Delivered',
-                total: 4196,
-                items: [
-                    { name: 'Casual Sneakers', price: 1999, quantity: 1 },
-                    { name: 'Summer Dress', price: 1349, quantity: 1 },
-                    { name: 'Classic T-Shirt', price: 499, quantity: 1 }
-                ]
             }
         ];
         
@@ -550,16 +418,16 @@ if (isset($_SESSION['username'])) {
             }
         }
         
-        <?
-        require 'config/db.php';
+        <?php
+        // require 'config/db.php';
 
-        $sql = "SELECT * FROM products";
-        $stmt = $conn->prepare($sql);
-        $result = $stmt-get_result();
-        $products = $result ? $result->fetch_all(MYSQLI_ASSOC): [];
+        // $sql = "SELECT * FROM products";
+        // $stmt = $conn->prepare($sql);
+        // $result = $stmt->get_result();
+        // $products = $result ? $result->fetch_all(MYSQLI_ASSOC): [];
 
-        $stmt->close();
-        $conn->close();
+        // $stmt->close();
+        // $conn->close();
         ?>
 
         function viewOrder(index) {
