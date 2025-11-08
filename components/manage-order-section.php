@@ -105,7 +105,7 @@ if(isset($_GET['status'])){
                     <td>
                         <form method="POST" action="actions/update_order_status.php">
                         <input type="hidden" name="order_id" value="<?=$order['id']?>">
-                        <select class="action-select" id="status_<?=$order['id']?>">
+                        <select class="action-select" id="status_<?=$order['id']?>" name="status">
                             <option value="Pending" <?=($order['status'] == 'Pending') ? 'selected' : ''?>>Pending</option>
                             <option value="Processing" <?=($order['status'] == 'Processing') ? 'selected' : ''?>>Processing</option>
                             <option value="Shipped" <?=($order['status'] == 'Shipped') ? 'selected' : ''?>>Shipped</option>
@@ -113,8 +113,8 @@ if(isset($_GET['status'])){
                             <option value="Cancelled" <?=($order['status'] == 'Cancelled') ? 'selected' : ''?>>Cancelled</option>
                         </select>
                         <button type="submit" class="update-btn">Update</button>
-                        </form>
                         <button type="button" class="view-btn" onclick="viewOrder(<?=$order['id']?>)">View</button>
+                        </form>
                     </td>
 
                 </tr>

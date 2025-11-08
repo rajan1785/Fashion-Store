@@ -332,13 +332,26 @@ if (isset($_SESSION['username'])) {
         }
 
         .order-section p {
-            margin-bottom: 6px;
             font-size: 14px;
             color: #555;
+            margin-bottom: 20px;
         }
 
-        .order-items {
-            margin-bottom: 20px;
+        #ordersTableContainer{
+            overflow: auto;
+            white-space: nowrap;
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .order-table th, .order-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
         }
 
         .order-item {
@@ -471,16 +484,19 @@ if (isset($_SESSION['username'])) {
                 <div class="order-section order-items">
                     <h4>Order Items:</h4>
                     <div class="order-item">
-                        <span>Blue T-Shirt × 2</span>
-                        <span>₹1200</span>
+                        <span>Blue T-Shirt</span>
+                        <span>₹1200 x 2 = </span>
+                        <span>₹2400</span>
                     </div>
                     <div class="order-item">
-                        <span>Black Jeans × 1</span>
+                        <span>Black Jeans</span>
+                        <span>₹1500 x 1 = </span>
                         <span>₹1500</span>
                     </div>
                     <div class="order-item">
-                        <span>Red Cap × 3</span>
-                        <span>₹450</span>
+                        <span>Red Cap</span>
+                        <span>₹450 x 3 = </span>
+                        <span>₹1350</span>
                     </div>
                     <div class="order-total">
                         <span>Total:</span>
@@ -524,7 +540,49 @@ if (isset($_SESSION['username'])) {
             const modalBody = document.getElementById('orderModal');
             modalBody.classList.remove('hide');
 
-            return;
+            // Calculate total price
+            const total_price = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+            // Populate modal with order details
+            document.getElementById('modalBody').innerHTML = `
+                <div class="order-section">
+                    <p><strong>Order ID:</strong> #${order.id}</p>
+                    <p><strong>Date:</strong> ${order.created_at}</p>
+                    <p><strong>Status:</strong> <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></p>
+                </div>
+                <!-- Customer Details -->
+                <div class="order-section">
+                    <h4>Customer Details:</h4>
+                    <p><strong>Name:</strong> ${order.customer_name}</p>
+                    <p><strong>Phone:</strong> ${order.phone}</p>
+                    <p><strong>Email:</strong> ${order.email}</p>
+                    <p><strong>Address:</strong> ${order.address}</p>
+                    <p><strong>Notes:</strong> ${order.notes || 'N/A'}</p>
+                </div>
+                <!-- Order Items -->
+                <div class="order-section order-items">
+                    <h4>Order Items:</h4>
+                    <table class="order-table">
+                        <tr>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    ${items.map(item => `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>₹${item.price}</td>
+                            <td>${item.quantity}</td>
+                            <td>₹${item.price * item.quantity}</td>
+                        </tr>
+                    `).join('')}
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                        <td><strong>₹${total_price}</strong></td>
+                    </tr>
+                </div>
+            `;
         }
         
         function closeModal() {
