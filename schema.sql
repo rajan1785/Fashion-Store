@@ -4,19 +4,21 @@ CREATE TABLE products (
     description TEXT,
     avl_unit INT DEFAULT 0,
     photo VARCHAR(125),
+    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    customer_name VARCHAR(100) NOT NULL,
     phone VARCHAR(15) NOT NULL,
     email VARCHAR(100),
     address VARCHAR(150) NOT NULL,
     city VARCHAR(50) NOT NULL,
+    pincode VARCHAR(10) DEFAULT NULL,
     notes TEXT,
-    status ENUM('Pending', 'Accepted', 'Processing', 'Shipped', 'Delivered') DEFAULT 'Pending',
+    status ENUM('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled') DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
