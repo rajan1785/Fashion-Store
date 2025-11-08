@@ -265,7 +265,6 @@ if (isset($_SESSION['username'])) {
         }
         
         .modal {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -273,6 +272,10 @@ if (isset($_SESSION['username'])) {
             height: 100%;
             background-color: rgba(0,0,0,0.5);
             z-index: 1000;
+        }
+
+        .hide{
+            display: none;
         }
         
         .modal-content {
@@ -438,11 +441,11 @@ if (isset($_SESSION['username'])) {
             ?>
     </div>
     
-    <div id="orderModal" class="modal" style="display:block;"> <!-- Set display:block to show modal -->
+    <div id="orderModal" class="modal hide"> <!-- Set display:block to show modal -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Order Details</h3>
-                <span class="close-btn">&times;</span>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
             </div>
 
             <div id="modalBody" class="modal-body">
@@ -499,12 +502,33 @@ if (isset($_SESSION['username'])) {
     <script>
         
 
-        function viewOrder(index) {
-            document.getElementById('orderModal').style.display = 'block';
+        function viewOrder(orderId) {
+            fetch('actions/get_order_details.php?order_id=' + orderId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const order = data.order;
+                        const items = data.items;
+                        showOrderDetails(order, items);
+                    } else {
+                        alert('Failed to load order details.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading order details.');
+                });
+        }
+
+        function showOrderDetails(order, items){
+            const modalBody = document.getElementById('orderModal');
+            modalBody.classList.remove('hide');
+
+            return;
         }
         
         function closeModal() {
-            document.getElementById('orderModal').style.display = 'none';
+            document.getElementById('orderModal').classList.add('hide');
         }
         
         window.onclick = function(event) {

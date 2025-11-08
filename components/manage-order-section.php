@@ -11,7 +11,7 @@ $deliveredOrders = 0;
 foreach($orders as $order){
     if($order['status'] == 'Pending'){
         $pendingOrders++;
-    }elseif($order['status'] == 'Accepted'){
+    }elseif($order['status'] == 'Processing'){
         $processingOrders++;
     }elseif($order['status'] == 'Shipped'){
         $shippedOrders++;
@@ -77,7 +77,7 @@ if(isset($_GET['status'])){
                     <th>Total</th>
                     <th>Status</th>
                     <th>Actions</th>
-                </tr>
+                </tr id="orderRow_<?=$order['id']?>">
             </thead>
             <tbody>
                 <?php foreach($orders as $order): ?>
@@ -99,18 +99,24 @@ if(isset($_GET['status'])){
                     <td><?=$order['customer_name']?></td>
                     <td><?=$order['phone']?></td>
                     <td><strong>₹<?=number_format($orderTotal, 2, '.', ',')?></strong></td>
-                    <td><span class="status-badge status-<?=strtolower($order['status'])?>"><?=$order['status']?></span></td>
                     <td>
-                        <select class="action-select">
+                        <span class="status-badge status-<?=strtolower($order['status'])?>"><?=$order['status']?></span>
+                    </td>
+                    <td>
+                        <form method="POST" action="actions/update_order_status.php">
+                        <input type="hidden" name="order_id" value="<?=$order['id']?>">
+                        <select class="action-select" id="status_<?=$order['id']?>">
                             <option value="Pending" <?=($order['status'] == 'Pending') ? 'selected' : ''?>>Pending</option>
                             <option value="Processing" <?=($order['status'] == 'Processing') ? 'selected' : ''?>>Processing</option>
                             <option value="Shipped" <?=($order['status'] == 'Shipped') ? 'selected' : ''?>>Shipped</option>
                             <option value="Delivered" <?=($order['status'] == 'Delivered') ? 'selected' : ''?>>Delivered</option>
                             <option value="Cancelled" <?=($order['status'] == 'Cancelled') ? 'selected' : ''?>>Cancelled</option>
                         </select>
-                        <button type="submit" class="update-btn" onclick="alert('Status updated!')">Update</button>
+                        <button type="submit" class="update-btn">Update</button>
+                        </form>
                         <button type="button" class="view-btn" onclick="viewOrder(<?=$order['id']?>)">View</button>
                     </td>
+
                 </tr>
                 <?php endforeach; ?>
             </tbody>
