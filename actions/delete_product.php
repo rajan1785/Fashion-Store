@@ -23,10 +23,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
     
     if ($stmt->execute()) {
         // Delete the photo file if it exists
-        if ($product && $product['photo'] && file_exists('../assets/product-photo/' . $product['photo'])) {
-            unlink('../assets/product-photo/' . $product['photo']);
+        if (file_exists('../assets/product-photo/' . $product['photo'])) {
+            $result = unlink('../assets/product-photo/' . $product['photo']);
+            header("Location: ../products.php?success=1?msg=Deleted&photoDeleted=" . $result);
         }
-        header("Location: ../products.php?success=1?msg=productDeleted");
+        header("Location: ../products.php?success=1?msg=productDeleted&photoDeleted=0");
     } else {
         header("Location: ../products.php?error=failedToDeleteProduct");
     }
