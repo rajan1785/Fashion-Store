@@ -510,7 +510,7 @@
             if(notes === "") {
                 notes = "none"
             }
-            if (!name || !phone || !address || !city || !pincode || !notes) {
+            if (!name || !phone || !address || !city || !pincode) {
                 console.log('name:', name, 'phone:', phone, 'address:', address, 'city:', city, 'pincode:', pincode, 'notes:', notes);
                 alert('Please fill all required fields');
                 return;

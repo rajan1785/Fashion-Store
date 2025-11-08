@@ -339,7 +339,6 @@ if (isset($_SESSION['username'])) {
 
         #ordersTableContainer{
             overflow: auto;
-            white-space: nowrap;
         }
 
         .order-table {
@@ -352,6 +351,7 @@ if (isset($_SESSION['username'])) {
             padding: 12px 15px;
             border-bottom: 1px solid #eee;
             font-size: 14px;
+            white-space: nowrap;
         }
 
         .order-item {
